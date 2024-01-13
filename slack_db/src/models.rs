@@ -15,8 +15,7 @@ pub struct User {
 #[derive(Queryable, Serialize, Deserialize)]
 #[diesel(table_name = crate::schema::login_action)]
 pub struct LoginActionModel {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i32>,
+    pub id: i32,
     pub publickey: String,
     pub actiondata: chrono::NaiveDateTime,
 }
@@ -24,8 +23,7 @@ pub struct LoginActionModel {
 #[derive(Queryable, Serialize, Deserialize)]
 #[diesel(table_name = crate::schema::signup_action)]
 pub struct SignupActionModel {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i32>,
+    pub id: i32,
     pub publickey: String,
     pub actiondata: chrono::NaiveDateTime,
 }

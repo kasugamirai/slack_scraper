@@ -37,7 +37,9 @@ pub async fn process_message(message: &SlackMessage) -> Result<(), Box<dyn std::
                     };
                     db_connection.insert_user(new_user)?;
                 } 
-                db_connection.insert_login_action(model)?;
+                if let Ok(false) = db_connection.login_action_exists(&model.publickey, &model.actiondata) {
+                    db_connection.insert_login_action(model)?;
+                }
             },
             Err(_) => {
                 // error parsing, skip this message
@@ -74,7 +76,9 @@ pub async fn process_message(message: &SlackMessage) -> Result<(), Box<dyn std::
                     };
                     db_connection.insert_user(new_user)?;
                 } 
-                db_connection.insert_signup_action(model)?;
+                if let Ok(false) = db_connection.signup_action_exists(&model.publickey, &model.actiondata) {
+                    db_connection.insert_signup_action(model)?;
+                }
             },
             Err(_) => {
                 // error parsing, skip this message

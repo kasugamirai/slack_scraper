@@ -3,12 +3,15 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use crate::models::{NewLoginActionModel, NewSignupActionModel, NewUser, User, LoginActionModel, SignupActionModel};
 use crate::schema::{login_action::dsl::*, signup_action::dsl::*, users::dsl::*};
+use chrono::NaiveDateTime;
+
 
 pub struct DbConnection {
     conn: PgConnection,
     login_actions: Vec<NewLoginActionModel>,
     signup_actions: Vec<NewSignupActionModel>,
     users: Vec<NewUser>,
+
 }
 
 impl DbConnection {
@@ -19,6 +22,24 @@ impl DbConnection {
         let conn = PgConnection::establish(&database_url)
             .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
         DbConnection { conn, login_actions: Vec::new(), signup_actions: Vec::new() , users: Vec::new() }
+    }
+
+    pub fn login_action_exists(&mut self, public_key_param: &str, action_date_param: &NaiveDateTime) -> Result<bool, diesel::result::Error> {
+        use crate::schema::login_action::dsl::{actiondata, publickey};
+        let existing_login_action: Result<LoginActionModel, _> = login_action
+            .filter(publickey.eq(public_key_param))
+            .filter(actiondata.eq(action_date_param))
+            .first(&mut self.conn);
+        Ok(existing_login_action.is_ok())
+    }
+
+    pub fn signup_action_exists(&mut self, public_key_param: &str, action_date_param: &NaiveDateTime) -> Result<bool, diesel::result::Error> {
+        use crate::schema::signup_action::dsl::{actiondata, publickey};
+        let existing_signup_action: Result<SignupActionModel, _> = signup_action
+            .filter(publickey.eq(public_key_param))
+            .filter(actiondata.eq(action_date_param))
+            .first(&mut self.conn);
+        Ok(existing_signup_action.is_ok())
     }
 
     pub fn user_exists(&mut self, public_key_param: &str) -> Result<bool, diesel::result::Error> {
